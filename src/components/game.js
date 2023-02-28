@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, Button, StyleSheet} from 'react-native';
 import RandomNumber from './randomNum';
 import shuffle from 'lodash.shuffle';
 
@@ -9,6 +9,7 @@ class Game extends React.Component {
     static propTypes = {
         randomNumCount: PropTypes.number.isRequired,
         initialSecs: PropTypes.number.isRequired,
+        onPlayAgain:  PropTypes.func.isRequired,
     };
 
     state = {
@@ -18,12 +19,12 @@ class Game extends React.Component {
     gameStatus = 'PLAYING';
     randomNumbers = Array
         .from({length: this.props.randomNumCount})
-        .map(() => 1 + Math.floor(10 * Math.random()));
+        .map(() => 1 + Math.floor(15 * Math.random()));
     target = this.randomNumbers
     .slice(0, this.props.randomNumCount - 2)
     .reduce((acc, curr) => acc + curr, 0);
 
-    shuffledRandomNumbers = shuffle(this.randomNumbers); 
+    shuffledRandomNumbers = shuffle(this.randomNumbers);
 
     componentDidMount() {
         this.intervalId = setInterval (() => {
@@ -94,7 +95,10 @@ class Game extends React.Component {
                         />
                     )}
                 </View>
-                <Text>{this.state.remainingSecs}</Text>
+                <Text style={styles.remainingSecs}>{this.state.remainingSecs}</Text>
+                {this.gameStatus !== 'PLAYING' && (
+                    <Button title="Play Again" onPress={this.props.onPlayAgain} />
+                )}
             </View>
         );
     }
@@ -132,6 +136,14 @@ const styles = StyleSheet.create({
     STATUS_LOST: {
         backgroundColor: '#FF6347',
     },
+
+    remainingSecs: {
+        textAlign: 'center',
+        paddingBottom: 100,
+        fontSize: 30,
+        fontWeight: 'bold',
+
+    }
 
 });
 
