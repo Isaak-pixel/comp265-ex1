@@ -7,10 +7,12 @@ import RandomNumber from './randomNum'
 class Game extends React.Component {
     static propTypes = {
         randomNumCount: PropTypes.number.isRequired,
+        initialSecs: PropTypes.number.isRequired,
     };
 
     state = {
         selectedIds: [],
+        remainingSecs: this.props.initialSecs,
     };
 
     randomNumbers = Array
@@ -20,6 +22,22 @@ class Game extends React.Component {
     .slice(0, this.props.randomNumCount - 2)
     .reduce((acc, curr) => acc + curr, 0);
     // TODO: Shuffle the random numbers
+
+    componentDidMount() {
+        this.intervalId = setInterval (() => {
+            this.setState((prevState) => {
+                return{remainingSecs: prevState.remainingSecs - 1};
+            }, () => {
+                if (this.state.remainingSecs === 0) {
+                    clearInterval(this.intervalId)
+                }
+            });
+        }, 1000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.intervalId);
+    }
 
     isNumSelected = (numberIndex) => {
         return this.state.selectedIds.indexOf(numberIndex) >= 0;
@@ -36,6 +54,9 @@ class Game extends React.Component {
         const sumSelected = this.state.selectedIds.reduce((acc, curr) => {
             return acc + this.randomNumbers[curr];
         }, 0);
+        if (this.state.remainingSecs === 0) {
+            return 'LOST';
+        }
         if (sumSelected < this.target) {
             return 'PLAYING';
         }
@@ -63,7 +84,7 @@ class Game extends React.Component {
                         />
                     )}
                 </View>
-                <Text>{gameStatus}</Text>
+                <Text>{this.state.remainingSecs}</Text>
             </View>
         );
     }
@@ -99,7 +120,7 @@ const styles = StyleSheet.create({
     },
 
     STATUS_LOST: {
-        backgroundColor: '#FF6347', 
+        backgroundColor: '#FF6347',
     },
 
 });
